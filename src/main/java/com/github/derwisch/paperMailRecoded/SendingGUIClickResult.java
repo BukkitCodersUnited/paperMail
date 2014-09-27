@@ -1,4 +1,4 @@
-package com.github.derwisch.paperMail;
+package com.github.derwisch.paperMailRecoded;
 
 public enum SendingGUIClickResult {
     /**

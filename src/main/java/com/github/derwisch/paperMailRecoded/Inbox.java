@@ -1,4 +1,4 @@
-package com.github.derwisch.paperMail;
+package com.github.derwisch.paperMailRecoded;
 //general Java imports
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,10 +11,19 @@ import java.util.Collection;
 
 
 
+import java.util.UUID;
+
+
+
+
 //    minecraft internals
-import net.minecraft.server.v1_7_R1.NBTCompressedStreamTools;
-import net.minecraft.server.v1_7_R1.NBTTagCompound;
-import net.minecraft.server.v1_7_R1.NBTTagList;
+import net.minecraft.server.v1_7_R3.NBTCompressedStreamTools;
+import net.minecraft.server.v1_7_R3.NBTTagCompound;
+import net.minecraft.server.v1_7_R3.NBTTagList;
+
+
+
+
 
 
 
@@ -31,10 +40,13 @@ import org.bukkit.block.Chest;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.v1_7_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_7_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+
+import com.github.derwisch.utils.InventoryUtils;
+import com.github.derwisch.utils.Utf8YamlConfiguration;
 
 public class Inbox {
 	
@@ -47,34 +59,34 @@ public class Inbox {
 		}
 	}
 	
-	public static Inbox GetInbox(String playerName) throws IOException, InvalidConfigurationException {
+	public static Inbox GetInbox(UUID uuid) throws IOException, InvalidConfigurationException {
 		for (Inbox inbox : Inboxes) {
-			if (inbox.playerName.equals(playerName)) {
+			if (inbox.playerUUID.equals(uuid)) {
 				return inbox;
 			}
 		}
 		//if player does not yet exist or have an inbox
-		AddInbox(playerName);
-		return GetInbox(playerName);
+		AddInbox(uuid);
+		return GetInbox(uuid);
 	}
 	
-	public static void AddInbox(String playerName) throws IOException, InvalidConfigurationException {
-		if (!Settings.InboxPlayers.contains(playerName)) {
-			Settings.InboxPlayers.add(playerName);
+	public static void AddInbox(UUID uuid) throws IOException, InvalidConfigurationException {
+		if (!Settings.InboxPlayers.contains(uuid)) {
+			Settings.InboxPlayers.add(uuid);
 		}
-		Inbox inbox = new Inbox(playerName);
+		Inbox inbox = new Inbox(uuid);
 		Inboxes.add(inbox);
 	}
 	
-	public static void RemoveInbox(String playerName) {
+	public static void RemoveInbox(UUID uuid) {
 		for (Inbox inbox : Inboxes) {
-			if (inbox.playerName.equals(playerName)) {
+			if (inbox.playerUUID.equals(uuid)) {
 				Inboxes.remove(inbox);
 			}
 		}
 	}
 	
-	public String playerName;
+	public UUID playerUUID;
 	public Inventory inventory;
 	public Chest inboxChest;
 	
@@ -84,15 +96,15 @@ public class Inbox {
 	private File file;
 	private File yamlfile;
 	
-	public Inbox(String playerName) throws IOException, InvalidConfigurationException {
-		this.playerName = playerName;
-		String filename = playerName + ".txt";
-		String yamlname = playerName + ".yml";
-		this.configAccessor = new ConfigAccessor(PaperMail.instance, "players\\" + playerName + ".yml");
+	public Inbox(UUID uuid) throws IOException, InvalidConfigurationException {
+		this.playerUUID = uuid;
+		String filename = uuid.toString() + ".txt";
+		String yamlname = uuid.toString() + ".yml";
+		this.configAccessor = new ConfigAccessor(paperMailRecoded.instance, "players\\" + uuid + ".yml");
 		this.playerConfig = configAccessor.getConfig();
 		configAccessor.saveConfig();
-		file = new File(PaperMail.instance.getDataFolder(), "players\\" + filename);
-		yamlfile = new File(PaperMail.instance.getDataFolder(), "players\\" + yamlname);
+		file = new File(paperMailRecoded.instance.getDataFolder(), "players\\" + filename);
+		yamlfile = new File(paperMailRecoded.instance.getDataFolder(), "players\\" + yamlname);
 		configAccessor.saveConfig();
 		initMailBox();
 		loadChest();
@@ -100,9 +112,8 @@ public class Inbox {
 	}
 	
 	private void initMailBox() {
-		@SuppressWarnings("deprecation")
-		Player player = Bukkit.getServer().getPlayer(playerName);
-		this.inventory = Bukkit.createInventory(player, 36, PaperMail.INBOX_GUI_TITLE);
+		Player player = Bukkit.getServer().getPlayer(playerUUID);
+		this.inventory = Bukkit.createInventory(player, 36, paperMailRecoded.INBOX_GUI_TITLE);
 	}
 	
 	private void loadChest() {
@@ -126,7 +137,8 @@ public class Inbox {
 		//Load Current stack save format
 		YamlConfiguration yaml = new Utf8YamlConfiguration();
 		yaml.load(yamlfile);
-		do {
+		//Load old old stacks for conversion, set slots to empty after load
+			do {
 			  itemString = yaml.getString("newitemstack." + i);
 			  if (itemString != null) {
 		        stack = InventoryUtils.stringToItemStack(itemString);
@@ -134,9 +146,8 @@ public class Inbox {
 		      }
 		      i++;
 		    }while (itemString != null);
-		i = 0;
-		//Load old old stacks for conversion, set slots to empty after load
-		do {
+			i = 0;
+			do {
 			oldstack = playerConfig.getItemStack("itemstack." + i);
 			if (oldstack != null){
 			if (InventoryUtils.inventoryCheck(inventory, oldstack) == true)
@@ -146,17 +157,17 @@ public class Inbox {
 			}
 			}
 			i++;
-		} while (oldstack != null);
-		//Load old stacks for conversion, delete the username.txt if any found after load
-		if(file.exists())
-		{	
+			} while (oldstack != null);
+			//Load old stacks for conversion, delete the username.txt if any found after load
+			if(file.exists())
+			{	
 			try {
 				c = NBTCompressedStreamTools.a(new FileInputStream(file));
 				file.delete();
-		} 	catch (FileNotFoundException e) {
+			} 	catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+			}
 		}
 		NBTTagList list = c.getList("inventory", 10);
 		CraftItemStack cis = null;
@@ -166,7 +177,7 @@ public class Inbox {
 			  if(item != null)
 			  {
 				  int index = item.getInt("index");
-				  net.minecraft.server.v1_7_R1.ItemStack is = net.minecraft.server.v1_7_R1.ItemStack.createStack(item); //net.minecraft.server item stack, not bukkit item stack
+				  net.minecraft.server.v1_7_R3.ItemStack is = net.minecraft.server.v1_7_R3.ItemStack.createStack(item); //net.minecraft.server item stack, not bukkit item stack
 				  cis = CraftItemStack.asCraftMirror(is);
 				  if (InventoryUtils.inventoryCheck(inventory, cis) == true)
 				  {
@@ -215,8 +226,7 @@ public class Inbox {
 	}
 	
 	public void openInbox() {
-		@SuppressWarnings("deprecation")
-		Player player = Bukkit.getServer().getPlayer(playerName);
+		Player player = Bukkit.getServer().getPlayer(playerUUID);
 		
 		player.openInventory(inventory);
 	}
@@ -228,8 +238,7 @@ public class Inbox {
 	
 	
 	public void AddItem(ItemStack itemStack, Player sender) throws IOException, InvalidConfigurationException {
-		@SuppressWarnings("deprecation")
-		Player player = Bukkit.getServer().getPlayer(playerName);
+		Player player = Bukkit.getServer().getPlayer(playerUUID);
 		World world = sender.getWorld();
 		Location senderLocation = sender.getLocation();
 		if (inboxChest != null) {
@@ -263,8 +272,7 @@ public class Inbox {
 	}
 	
 	public void AddItems(Collection<ItemStack> items, Player sender) throws IOException, InvalidConfigurationException {
-		@SuppressWarnings("deprecation")
-		Player player = Bukkit.getServer().getPlayer(playerName);
+		Player player = Bukkit.getServer().getPlayer(playerUUID);
 		@SuppressWarnings("unused")
 		boolean full = true;
 		for (ItemStack itemStack : items) {

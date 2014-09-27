@@ -1,7 +1,7 @@
-name: PaperMail
-version: 1.0.1.4
+name: paperMailRecoded
+version: 1.0
 author: DrkMatr1984
-main: com.github.derwisch.paperMail.PaperMail
+main: com.github.derwisch.paperMailRecoded.PaperMail
 softdepend: [Vault]
       
 commands:

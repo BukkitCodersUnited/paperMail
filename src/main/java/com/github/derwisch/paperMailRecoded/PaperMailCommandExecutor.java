@@ -1,12 +1,11 @@
-package com.github.derwisch.paperMail;
+package com.github.derwisch.paperMailRecoded;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.UUID;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.command.Command;
@@ -19,10 +18,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class PaperMailCommandExecutor implements CommandExecutor {
     
-	private PaperMail plugin;
+	private paperMailRecoded plugin;
 	private double Cost = Settings.Price;
  
-	public PaperMailCommandExecutor(PaperMail plugin) {
+	public PaperMailCommandExecutor(paperMailRecoded plugin) {
 		this.plugin = plugin;
 		this.plugin.getLogger().info("PaperMailCommandExecutor initialized");
 	}
@@ -83,7 +82,7 @@ public class PaperMailCommandExecutor implements CommandExecutor {
 					Player player = ((Player) sender);
 					if (args.length == 0 && (player.hasPermission(Permissions.CREATE_CHEST_SELF_PERM)  || player.hasPermission(Permissions.CREATE_CHEST_ALL_PERM))) {
 						try {
-							inbox = Inbox.GetInbox(player.getName());
+							inbox = Inbox.GetInbox(player.getUniqueId());
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -93,11 +92,8 @@ public class PaperMailCommandExecutor implements CommandExecutor {
 						}
 					} else if (args.length == 1 && player.hasPermission(Permissions.CREATE_CHEST_ALL_PERM)) {
 						try {
-							inbox = Inbox.GetInbox(args[0]);
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (InvalidConfigurationException e) {
+							inbox = Inbox.GetInbox(com.github.derwisch.utils.UUIDFetcher.getUUIDOf(args[0]));
+						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
@@ -131,7 +127,7 @@ public class PaperMailCommandExecutor implements CommandExecutor {
 	}
 	
 	public void helpMessage(CommandSender sender){
-		sender.sendMessage(ChatColor.WHITE + "Current Version of PaperMail is " + PaperMail.instance.getDescription().getVersion() + ".\n" + ChatColor.BOLD + ChatColor.AQUA + ChatColor.UNDERLINE + "PAPERMAIL HELP" + ChatColor.RESET);
+		sender.sendMessage(ChatColor.WHITE + "Current Version of PaperMail is " + paperMailRecoded.instance.getDescription().getVersion() + ".\n" + ChatColor.BOLD + ChatColor.AQUA + ChatColor.UNDERLINE + "PAPERMAIL HELP" + ChatColor.RESET);
 		sender.sendMessage("" + ChatColor.BOLD + ChatColor.RED + "Commands:" + ChatColor.RESET);
 		sender.sendMessage(ChatColor.GOLD + "/sendtext <playername> <Composition of Text>" + ChatColor.RESET);
 		sender.sendMessage(ChatColor.YELLOW + "playername must be exact if sending to an offline player" + ChatColor.RESET);
@@ -168,22 +164,20 @@ public class PaperMailCommandExecutor implements CommandExecutor {
 	itemMeta.setLore(lines);
 	itemStack.setItemMeta(itemMeta);
 	String playerName = args[0];
-	Player p = Bukkit.getPlayer(playerName);
-	if (p != null) {
-		playerName = p.getName();
-	    } else {
-	    OfflinePlayer op = Bukkit.getOfflinePlayer(playerName);
-	    if (op != null) {
-	    	playerName = op.getName();
-	    	player.sendMessage(ChatColor.GREEN + "Player " + playerName + " is Offline. Dropping it in their mailbox!" + ChatColor.RESET);
-	        } else {
-	        	playerName = args[1];
-	        	player.sendMessage(ChatColor.DARK_RED + "Player "  + playerName + " may not exist or doesn't have an Inbox yet. Creating Inbox for player " + playerName + ChatColor.RESET);
-	        	player.sendMessage(ChatColor.DARK_RED + "Warning : If you misspelled, your items may be lost forever. Make sure you check the player's name before sending always." + ChatColor.RESET); 
-	        }
-	    }
+	UUID playerUUID = null;
+	try{
+		playerUUID = com.github.derwisch.utils.UUIDFetcher.getUUIDOf(playerName);
+	}catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	if (playerUUID != null) {
+		playerName = args[0];
+	} else {
+		player.sendMessage(ChatColor.DARK_RED + "Please make sure the player's name is spelled exactly as is. They may have changed their name.  " + ChatColor.BOLD + "User " + args[0] + " Not Found" + ChatColor.RESET);	
+	}
 	try {
-		Inbox.GetInbox(playerName).AddItem(itemStack, player);
+		Inbox.GetInbox(playerUUID).AddItem(itemStack, player);
 	} catch (IOException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();

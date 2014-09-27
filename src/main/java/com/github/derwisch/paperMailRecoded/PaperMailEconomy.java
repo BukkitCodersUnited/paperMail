@@ -1,4 +1,4 @@
-package com.github.derwisch.paperMail;
+package com.github.derwisch.paperMailRecoded;
 
 import java.util.ArrayList;
 
@@ -7,6 +7,8 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import com.github.derwisch.utils.InventoryUtils;
 
 
 public class PaperMailEconomy{
@@ -57,8 +59,8 @@ public class PaperMailEconomy{
     //take money from the player
     @SuppressWarnings({ "deprecation" })
 	public static void takeMoney(Double price, Player player){
-    if (!(PaperMail.isGoldIngot())) {
-				PaperMail.economy.withdrawPlayer(player.getName(), price.doubleValue());
+    if (!(paperMailRecoded.isGoldIngot())) {
+    	paperMailRecoded.economy.withdrawPlayer(player.getName(), price.doubleValue());
 				player.sendMessage(ChatColor.GREEN + "%price% removed from Wallet!".replace("%price%", new StringBuilder().append(ChatColor.WHITE).append(price.toString()).toString()) + ChatColor.RESET);   
     }
    else {
@@ -79,12 +81,12 @@ public class PaperMailEconomy{
     //check if player has correct amount of currency, return true if they do, false if they don't
     @SuppressWarnings("deprecation")
 	public static boolean hasMoney(Double price, Player player){
-	  if ((!(PaperMail.isGoldIngot())) && (Settings.EnableMailCosts != false) && (price != 0)) {
-		  if (PaperMail.economy.getBalance(player.getName()) < price.doubleValue()) {
+	  if ((!(paperMailRecoded.isGoldIngot())) && (Settings.EnableMailCosts != false) && (price != 0)) {
+		  if (paperMailRecoded.economy.getBalance(player.getName()) < price.doubleValue()) {
 		  		hasMoney = false;
 		  		return false;
 				 }
-	  }else if((PaperMail.isGoldIngot()) && (Settings.EnableMailCosts != false) && (price != 0)){
+	  }else if((paperMailRecoded.isGoldIngot()) && (Settings.EnableMailCosts != false) && (price != 0)){
 		  int goldAmount = goldCounter(player, Material.getMaterial(Settings.CurrencyItemID));
 		  int goldPrice = (int)Math.ceil(price.doubleValue());
 		  if (goldAmount < goldPrice) {
@@ -118,9 +120,9 @@ public class PaperMailEconomy{
     //Deposit the banknote into the player's bank account
     @SuppressWarnings("deprecation")
 	public static void cashBankNote(Player player, double amount){
-      if (!(PaperMail.isGoldIngot())) {
+      if (!(paperMailRecoded.isGoldIngot())) {
 	  String playerName = player.getName();
-	  PaperMail.economy.depositPlayer(playerName, amount);
+	  paperMailRecoded.economy.depositPlayer(playerName, amount);
       }else
       {
     	  int currencyAmt = (int)amount;

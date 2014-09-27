@@ -1,16 +1,15 @@
-package com.github.derwisch.paperMail;
+package com.github.derwisch.paperMailRecoded;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.InvalidConfigurationException;
-//import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -54,7 +53,7 @@ public class PaperMailGUI {
 	public PaperMailGUI(Player player) {
 		this.paperSent = false;
 		Player = player;
-		Inventory = Bukkit.createInventory(player, Settings.MailWindowRows * 9, PaperMail.NEW_MAIL_GUI_TITLE);
+		Inventory = Bukkit.createInventory(player, Settings.MailWindowRows * 9, paperMailRecoded.NEW_MAIL_GUI_TITLE);
 		initializeButtons();
     	itemMailGUIs.add(this);
 	}
@@ -62,7 +61,7 @@ public class PaperMailGUI {
 	public PaperMailGUI(Player player, boolean paperSent) {
 		this.paperSent = paperSent;
 		Player = player;
-		Inventory = Bukkit.createInventory(player, Settings.MailWindowRows * 9, PaperMail.NEW_MAIL_GUI_TITLE);
+		Inventory = Bukkit.createInventory(player, Settings.MailWindowRows * 9, paperMailRecoded.NEW_MAIL_GUI_TITLE);
 		initializeButtons();
     	itemMailGUIs.add(this);
 	}
@@ -135,7 +134,7 @@ public class PaperMailGUI {
     	}
     	Inventory.setItem(((Settings.MailWindowRows - 1) * 9) - 1, sendButtonEnabled);
     	Inventory.setItem((Settings.MailWindowRows * 9) - 1, cancelButton);
-    	if ((Settings.EnableSendMoney == true) && (PaperMail.economy != null)){
+    	if ((Settings.EnableSendMoney == true) && (paperMailRecoded.economy != null)){
     		if(Settings.MailWindowRows > 3){
     		Inventory.setItem(((Settings.MailWindowRows - 2) * 9) -1, sendMoneyButton);
     		}else{
@@ -160,11 +159,10 @@ public class PaperMailGUI {
 		Player.closeInventory();
 	}
 	
-	@SuppressWarnings("deprecation")
 	public void SendContents() throws IOException, InvalidConfigurationException {
 		Player player = this.Player;
 		ArrayList<ItemStack> sendingContents = new ArrayList<ItemStack>();
-		String playerName = "";
+		UUID playerUUID = null;
 		int numItems = 0;
 		double itemCost = Settings.ItemCost;
 		int amount = 0;
@@ -187,21 +185,20 @@ public class PaperMailGUI {
 				numItems = numItems + CraftStack.getAmount();
 			}
 			//get the name from the Written book of the recipient
-			if (CraftStack.getType() == Material.WRITTEN_BOOK && playerName == "") {
+			if (CraftStack.getType() == Material.WRITTEN_BOOK && playerUUID == null) {
 				BookMeta bookMeta = (BookMeta)itemMeta;
-				Player p = Bukkit.getPlayer(bookMeta.getTitle());
-				if (p != null) {
-					playerName = p.getName();
-				    } else {
-				    OfflinePlayer op = Bukkit.getOfflinePlayer(bookMeta.getTitle());
-				    if (op != null) {
-				    	playerName = op.getName();
-				        } else {
-				        	playerName = bookMeta.getTitle();
-				        	player.sendMessage(ChatColor.DARK_RED + "Player "  + playerName + " may not exist or doesn't have an Inbox yet. Creating Inbox for player " + playerName + ChatColor.RESET);
-				        }
-				    }
-			}
+				UUID recipientUUID = null;
+				try {
+					recipientUUID = com.github.derwisch.utils.UUIDFetcher.getUUIDOf(bookMeta.getTitle());
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if (recipientUUID != null) {
+					playerUUID = recipientUUID;
+				} else {
+					player.sendMessage(ChatColor.DARK_RED + "Please make sure the player's name is spelled exactly as is. They may have changed their name.  " + ChatColor.BOLD + "User " + bookMeta.getTitle() + " Not Found" + ChatColor.RESET);
+				}
 			//If Sending Money is enabled, count the amount the player wants to send and convert it to Bank Note later.
 			if((itemMeta.getDisplayName() == MONEY_SEND_BUTTON_TITLE) && (Settings.EnableSendMoney == true)){
 				if (CraftStack.getAmount() > 1){
@@ -209,6 +206,7 @@ public class PaperMailGUI {
 				}
 			}
 		}
+	}
 		//Calculate the money for each item sent if PerItemCosts is enabled
 		if ((Settings.EnableMailCosts == true) && (Settings.PerItemCosts == true) && (Settings.ItemCost != 0) && (!this.Player.hasPermission(Permissions.COSTS_EXEMPT))){
 				itemCost = numItems * itemCost;		
@@ -238,7 +236,7 @@ public class PaperMailGUI {
 		}
 		
 		//add the items to the recipients inbox.
-			Inbox inbox = Inbox.GetInbox(playerName);
+			Inbox inbox = Inbox.GetInbox(playerUUID);
 			inbox.AddItems(sendingContents, Player);
 		
 		if (paperSent) {

@@ -1,5 +1,6 @@
-package com.github.derwisch.paperMail;
+package com.github.derwisch.paperMailRecoded;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Logger;
@@ -20,15 +21,14 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class PaperMail extends JavaPlugin {
-	  
-	public static final String NEW_MAIL_GUI_TITLE = ChatColor.BLACK + "PaperMail: New Mail" + ChatColor.RESET;
-	public static final String INBOX_GUI_TITLE = ChatColor.BLACK + "PaperMail: Inbox" + ChatColor.RESET;
+public class paperMailRecoded extends JavaPlugin {
 	
-	public static PaperMail instance;
+	public static paperMailRecoded instance;
 	public static Server server;
 	public static Logger logger;
 	public static Economy economy = null;
+	public static paperMailRecoded plugin;
+	public static boolean serverOnlineMode = true;
 	
 	private PaperMailListener listener;
 	private FileConfiguration configuration;
@@ -39,20 +39,22 @@ public class PaperMail extends JavaPlugin {
     	server = this.getServer();
     	logger = this.getLogger();
     	
-    	saveDefaultConfig();
-    	configuration = this.getConfig();
-    	Settings.LoadConfiguration(configuration);
+    	//Load Config
+    	loadConfig(this);
+    	initLanguage();
     	//Load Economy
     	if (setupEconomy().booleanValue())
-    		System.out.println(this + " linked into " + economy.getName() + ", via Vault");
+    		System.out.println(this + ": linked into " + economy.getName() + ", via Vault");
         if ((setupEconomy() == false) && (Settings.EnableMailCosts == true)) {
         	System.out.println(this + ": Vault economy not found, switching to Default Economy!");
         }
-    	
-    	PaperMailCommandExecutor commandExecutor = new PaperMailCommandExecutor(this); 
-    	getCommand("papermail").setExecutor(commandExecutor);
-    	getCommand("sendtext").setExecutor(commandExecutor);
-    	getCommand("createbox").setExecutor(commandExecutor);
+        //Check for online mode to see if we need to support UUIDs
+        if(!(server.getOnlineMode())){
+        	System.out.println(this + ": This server is running in OFFLINE mode. Support for UUIDs disabled.");
+        	serverOnlineMode = server.getOnlineMode();
+        }
+        //Initialize CommandExecutor
+        initCommandExecutor(this);
     	
     	listener = new PaperMailListener();
         this.getServer().getPluginManager().registerEvents(listener, this);
@@ -62,6 +64,9 @@ public class PaperMail extends JavaPlugin {
         
     	logger.info("Enabled PaperMail");
     }
+    
+    public static final String NEW_MAIL_GUI_TITLE = ChatColor.BLACK + LanguageAccessor.newMailGUITitle + ChatColor.RESET;
+	public static final String INBOX_GUI_TITLE = ChatColor.BLACK + LanguageAccessor.inboxGUITitle + ChatColor.RESET;
     
 	@Override
     public void onDisable() {
@@ -75,6 +80,30 @@ public class PaperMail extends JavaPlugin {
 		this.saveConfig();
     	getLogger().info("Disabled PaperMail");
     }
+	
+	private void initLanguage()
+	{
+		File f = new File(getDataFolder()+File.separator+"language.yml");
+        LanguageAccessor.saveDefault(f);
+        LanguageAccessor.LoadLanguage(f); 
+	}
+	
+	private void loadConfig(paperMailRecoded instance)
+	{
+		instance = this;
+		saveDefaultConfig();
+    	configuration = this.getConfig();
+    	Settings.LoadConfiguration(configuration);
+	}
+	
+	private void initCommandExecutor(paperMailRecoded instance)
+	{
+		instance = this;
+		PaperMailCommandExecutor commandExecutor = new PaperMailCommandExecutor(this); 
+    	getCommand("papermail").setExecutor(commandExecutor);
+    	getCommand("sendtext").setExecutor(commandExecutor);
+    	getCommand("createbox").setExecutor(commandExecutor);
+	}
     
     @SuppressWarnings("deprecation")
 	private void initializeRecipes() {
@@ -95,13 +124,14 @@ public class PaperMail extends JavaPlugin {
 		this.getServer().addRecipe(letterPaperRecipe);
     }
 
-    private void initializeInboxes() {
+    @SuppressWarnings("deprecation")
+	private void initializeInboxes() {
 		for (Player player : getServer().getOnlinePlayers()) {
 			if (player == null) {
 				continue;
 			}
 			try {
-				Inbox.AddInbox(player.getName());
+				Inbox.AddInbox(player.getUniqueId());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -118,7 +148,7 @@ public class PaperMail extends JavaPlugin {
 				continue;
 			}
 			try {
-				Inbox.AddInbox(player.getName());
+				Inbox.AddInbox(player.getUniqueId());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -135,7 +165,7 @@ public class PaperMail extends JavaPlugin {
 
      
    @SuppressWarnings("rawtypes")
-public Boolean setupEconomy()
+   public Boolean setupEconomy()
      {
        Plugin vault = getServer().getPluginManager().getPlugin("Vault");
       if (vault == null) {

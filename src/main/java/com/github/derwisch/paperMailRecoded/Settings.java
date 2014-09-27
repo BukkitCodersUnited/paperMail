@@ -1,7 +1,8 @@
-package com.github.derwisch.paperMail;
+package com.github.derwisch.paperMailRecoded;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.configuration.Configuration;
 
@@ -30,7 +31,8 @@ public class Settings {
 	public static int Increments = 1;
 	public static String MailItemName = "Letter paper";
 	
-	public static List<String> InboxPlayers = new ArrayList<String>();
+	public static ArrayList<UUID> InboxPlayers = new ArrayList<UUID>();
+	public static List<String> InboxPlayersString = new ArrayList<String>();
 	
     public static void LoadConfiguration(Configuration config) {
         try {
@@ -53,7 +55,12 @@ public class Settings {
         	BankNoteNum = config.getInt("general.BankNoteID");
         	MailItemName = config.getString("general.MailItemName");
         	
-        	InboxPlayers = config.getStringList("inboxPlayers");
+        	InboxPlayersString = config.getStringList("inboxPlayers");
+        	for(String s : InboxPlayersString){
+        		UUID uuid = com.github.derwisch.utils.UUIDFetcher.getUUID(s);
+        		InboxPlayers.add(uuid);
+        	}
+        	
         } catch (Exception e) {
                 e.printStackTrace();
         }

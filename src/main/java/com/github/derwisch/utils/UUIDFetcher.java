@@ -1,4 +1,4 @@
-package com.evilmidget38;
+package com.github.derwisch.utils;
 
 import com.google.common.collect.ImmutableList;
 import org.json.simple.JSONArray;
@@ -69,7 +69,7 @@ public class UUIDFetcher implements Callable<Map<String, UUID>> {
         return connection;
     }
 
-    private static UUID getUUID(String id) {
+    public static UUID getUUID(String id) {
         return UUID.fromString(id.substring(0, 8) + "-" + id.substring(8, 12) + "-" + id.substring(12, 16) + "-" + id.substring(16, 20) + "-" +id.substring(20, 32));
     }
 

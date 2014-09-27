@@ -1,4 +1,4 @@
-package com.github.derwisch.paperMail;
+package com.github.derwisch.paperMailRecoded;
 
 import java.io.IOException;
 import java.util.List;
@@ -28,9 +28,9 @@ public class PaperMailListener implements Listener {
 	
     @EventHandler
     public void playerJoin(PlayerJoinEvent event) throws IOException, InvalidConfigurationException {
-		Inbox inbox = Inbox.GetInbox(event.getPlayer().getName());
+		Inbox inbox = Inbox.GetInbox(event.getPlayer().getUniqueId());
 		if (inbox == null) {
-			Inbox.AddInbox(event.getPlayer().getName());
+			Inbox.AddInbox(event.getPlayer().getUniqueId());
 		}
     }
     
@@ -53,7 +53,7 @@ public class PaperMailListener implements Listener {
                 } else if (event.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
                 	Inbox inbox = null;
 					try {
-						inbox = Inbox.GetInbox(player.getName());
+						inbox = Inbox.GetInbox(player.getUniqueId());
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -70,7 +70,7 @@ public class PaperMailListener implements Listener {
     
     @EventHandler
     public void onInventoryClick_MailGUI_Send(InventoryClickEvent event) throws IOException, InvalidConfigurationException {
-    	if (event.getInventory().getName() != PaperMail.NEW_MAIL_GUI_TITLE)
+    	if (event.getInventory().getName() != paperMailRecoded.NEW_MAIL_GUI_TITLE)
     		return;
     	double ItemCost = Settings.ItemCost;
     	Inventory inventory = event.getInventory();
@@ -151,7 +151,7 @@ public class PaperMailListener implements Listener {
     
     @EventHandler
     public void onInventoryClick_MailGUI_Cancel(InventoryClickEvent event) {
-    	if (event.getInventory().getName() != PaperMail.NEW_MAIL_GUI_TITLE)
+    	if (event.getInventory().getName() != paperMailRecoded.NEW_MAIL_GUI_TITLE)
     		return;
     	
     	Inventory inventory = event.getInventory();
@@ -168,7 +168,7 @@ public class PaperMailListener implements Listener {
     
     @EventHandler
     public void onInventoryClick_MailGUI_Enderchest(InventoryClickEvent event) {
-    	if (event.getInventory().getName() != PaperMail.NEW_MAIL_GUI_TITLE)
+    	if (event.getInventory().getName() != paperMailRecoded.NEW_MAIL_GUI_TITLE)
     		return;
     	
     	ItemStack currentItem = event.getCurrentItem();
@@ -188,7 +188,7 @@ public class PaperMailListener implements Listener {
     public static void OpenInventory(Player player, Inventory inventory) {
     	PaperMailListener.player = player;
     	PaperMailListener.inventory = inventory;
-    	PaperMail.server.getScheduler().scheduleSyncDelayedTask(PaperMail.instance, new Runnable() {
+    	paperMailRecoded.server.getScheduler().scheduleSyncDelayedTask(paperMailRecoded.instance, new Runnable() {
     	    public void run() {
     	    	openInventory(PaperMailListener.player, PaperMailListener.inventory);
     	    }
@@ -203,7 +203,7 @@ public class PaperMailListener implements Listener {
     @SuppressWarnings("deprecation")
 	@EventHandler
     public void onInventoryClick_MailGUI_Recipient(InventoryClickEvent event) {
-    	if (event.getInventory().getName() != PaperMail.NEW_MAIL_GUI_TITLE)
+    	if (event.getInventory().getName() != paperMailRecoded.NEW_MAIL_GUI_TITLE)
     		return;
     	
     	ItemStack currentItem = event.getCurrentItem();
@@ -227,7 +227,7 @@ public class PaperMailListener implements Listener {
     public void onInventoryClose(InventoryCloseEvent event) throws IOException, InvalidConfigurationException {
     	Inventory inventory = event.getInventory();
     	
-    	if (inventory.getName() == PaperMail.NEW_MAIL_GUI_TITLE) {
+    	if (inventory.getName() == paperMailRecoded.NEW_MAIL_GUI_TITLE) {
     		Player player = (Player) event.getPlayer();
     		PaperMailGUI gui = PaperMailGUI.GetGUIfromPlayer(player);
     		World world = player.getWorld();
@@ -257,9 +257,9 @@ public class PaperMailListener implements Listener {
     		
     	}
 
-    	if (inventory.getName() == PaperMail.INBOX_GUI_TITLE) {
+    	if (inventory.getName() == paperMailRecoded.INBOX_GUI_TITLE) {
     		Player player = (Player) event.getPlayer();
-    		Inbox inbox = Inbox.GetInbox(player.getName());
+    		Inbox inbox = Inbox.GetInbox(player.getUniqueId());
     		inbox.SaveInbox();
     	}
     	
@@ -281,9 +281,9 @@ public class PaperMailListener implements Listener {
     	inv.setMaxStackSize(127);
     	ItemStack currentItem = event.getCurrentItem();
     	ItemMeta currentItemMeta = (currentItem == null) ? null : currentItem.getItemMeta();
-    	if (event.getInventory().getName() != PaperMail.NEW_MAIL_GUI_TITLE)
+    	if (event.getInventory().getName() != paperMailRecoded.NEW_MAIL_GUI_TITLE)
     		return;
-    	if ((inv.getName() != null) && (inv.getName() == PaperMail.NEW_MAIL_GUI_TITLE)) {
+    	if ((inv.getName() != null) && (inv.getName() == paperMailRecoded.NEW_MAIL_GUI_TITLE)) {
     		if ((currentItemMeta != null) && (currentItemMeta.getDisplayName() == PaperMailGUI.MONEY_SEND_BUTTON_TITLE) && (event.getClick().isLeftClick())) {
     			if(currentItem.getAmount() == 0){
     				currentItem.setAmount(1);

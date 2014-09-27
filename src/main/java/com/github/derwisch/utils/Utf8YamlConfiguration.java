@@ -1,4 +1,4 @@
-package com.github.derwisch.paperMail;
+package com.github.derwisch.utils;
 
 import java.io.BufferedReader;
 import java.io.File;

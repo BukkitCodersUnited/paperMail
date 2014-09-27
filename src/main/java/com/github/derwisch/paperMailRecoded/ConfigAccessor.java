@@ -1,4 +1,4 @@
-package com.github.derwisch.paperMail;
+package com.github.derwisch.paperMailRecoded;
 
 /*
 * Copyright (C) 2012
@@ -31,6 +31,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.github.derwisch.utils.Utf8YamlConfiguration;
+
 public class ConfigAccessor {
 
     private final String fileName;
@@ -56,12 +58,13 @@ public class ConfigAccessor {
                 throw new IllegalStateException();
             configFile = new File(dataFolder, fileName);
         }
-        fileConfiguration = YamlConfiguration.loadConfiguration(configFile);
+        fileConfiguration = Utf8YamlConfiguration.loadConfiguration(configFile);
 
         // Look for defaults in the jar
         InputStream defConfigStream = plugin.getResource(fileName);
         if (defConfigStream != null) {
-            YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
+            @SuppressWarnings("deprecation")
+			YamlConfiguration defConfig = Utf8YamlConfiguration.loadConfiguration(defConfigStream);
             fileConfiguration.setDefaults(defConfig);
         }
     }
