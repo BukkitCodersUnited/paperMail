@@ -46,6 +46,9 @@ public class paperMailRecoded extends JavaPlugin {
     	//Load Config
     	loadConfig(this);
     	initLanguage();
+    	//Check for ProtocolLib
+    	if(protocolCheck().booleanValue())
+    		System.out.println(this + ": ProtocolLib Detected! Using CommandBlockGUI to get user Input");
     	//Load Economy
     	if (setupEconomy().booleanValue())
     		System.out.println(LINKED_INTO_VAULT);
@@ -170,7 +173,16 @@ public class paperMailRecoded extends JavaPlugin {
 	   NEW_MAIL_GUI_TITLE = ChatColor.BLACK + LanguageAccessor.newMailGUITitle + ChatColor.RESET;
 	   INBOX_GUI_TITLE = ChatColor.BLACK + LanguageAccessor.inboxGUITitle + ChatColor.RESET;
    } 
-     
+   
+   public static Boolean protocolCheck()
+   {
+	   Plugin protocollib = paperMailRecoded.plugin.getServer().getPluginManager().getPlugin("ProtocolLib");
+	      if (protocollib == null) {
+	        return Boolean.valueOf(false);
+	      }
+	   return Boolean.valueOf(true);
+   }
+   
    @SuppressWarnings("rawtypes")
    public Boolean setupEconomy()
      {

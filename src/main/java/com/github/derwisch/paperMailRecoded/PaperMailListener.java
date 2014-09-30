@@ -3,6 +3,7 @@ package com.github.derwisch.paperMailRecoded;
 import java.io.IOException;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -21,10 +22,15 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import com.cmg.inputgui.api.InputGui;
+import com.cmg.inputgui.api.InputGuiAPI;
+import com.cmg.inputgui.api.InputPlayer;
  
 public class PaperMailListener implements Listener {
 	
 	public double sendAmount = 0;
+	InputGuiAPI api = (InputGuiAPI) Bukkit.getPluginManager().getPlugin("InputGuiAPI");
 	
     @EventHandler
     public void playerJoin(PlayerJoinEvent event) throws IOException, InvalidConfigurationException {
@@ -275,14 +281,38 @@ public class PaperMailListener implements Listener {
     	}
     }
     
-    @EventHandler
+    
+    @SuppressWarnings("unused")
+	@EventHandler
     public void onInventoryClick_MailGUI_sendMoney(InventoryClickEvent event) {
+    	if (event.getInventory().getName() != paperMailRecoded.NEW_MAIL_GUI_TITLE)
+    		return;
+    	//	
+    	if(paperMailRecoded.protocolCheck()){	
+    		String GUIAmount = "";
+    		Player p = (Player) event.getWhoClicked();
+    		InputPlayer iplayer = api.getPlayer(p);
+    		iplayer.openGui(new InputGui(){
+    			public String getDefaultText() {
+    				return "Amount";
+				} 
+    		 
+    		    public void onConfirm(InputPlayer player, String input) {
+    		        player.getPlayer().sendMessage(this.getDefaultText() + " -> " + input);
+    		    }
+    		 
+    		    public void onCancel(InputPlayer player) {
+   
+    		    }
+    		 
+    		});
+    	}else{	//begin else
+    	//
     	Inventory inv = event.getInventory();
     	inv.setMaxStackSize(127);
     	ItemStack currentItem = event.getCurrentItem();
     	ItemMeta currentItemMeta = (currentItem == null) ? null : currentItem.getItemMeta();
-    	if (event.getInventory().getName() != paperMailRecoded.NEW_MAIL_GUI_TITLE)
-    		return;
+    	
     	if ((inv.getName() != null) && (inv.getName() == paperMailRecoded.NEW_MAIL_GUI_TITLE)) {
     		if ((currentItemMeta != null) && (currentItemMeta.getDisplayName() == PaperMailGUI.MONEY_SEND_BUTTON_TITLE) && (event.getClick().isLeftClick())) {
     			if(currentItem.getAmount() == 0){
@@ -303,7 +333,10 @@ public class PaperMailListener implements Listener {
     			event.setCancelled(true);
     		}
     	}
+    	}//end else
     }
+    
+    
     
     //Create Method On Right Click Item Bank Note Deposit
     @EventHandler
