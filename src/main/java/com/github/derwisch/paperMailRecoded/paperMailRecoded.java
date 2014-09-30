@@ -1,6 +1,5 @@
 package com.github.derwisch.paperMailRecoded;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Logger;
@@ -33,18 +32,23 @@ public class paperMailRecoded extends JavaPlugin {
 	private PaperMailListener listener;
 	private FileConfiguration configuration;
 	
+	//Language variables
+	public static String NEW_MAIL_GUI_TITLE = "";
+	public static String INBOX_GUI_TITLE = "";
+	public static String LINKED_INTO_VAULT = "";
+	
     @Override
     public void onEnable() {
     	instance = this;
     	server = this.getServer();
     	logger = this.getLogger();
-    	
+    	plugin = this;
     	//Load Config
     	loadConfig(this);
     	initLanguage();
     	//Load Economy
     	if (setupEconomy().booleanValue())
-    		System.out.println(this + ": linked into " + economy.getName() + ", via Vault");
+    		System.out.println(LINKED_INTO_VAULT);
         if ((setupEconomy() == false) && (Settings.EnableMailCosts == true)) {
         	System.out.println(this + ": Vault economy not found, switching to Default Economy!");
         }
@@ -64,10 +68,7 @@ public class paperMailRecoded extends JavaPlugin {
         
     	logger.info("Enabled PaperMail");
     }
-    
-    public static final String NEW_MAIL_GUI_TITLE = ChatColor.BLACK + LanguageAccessor.newMailGUITitle + ChatColor.RESET;
-	public static final String INBOX_GUI_TITLE = ChatColor.BLACK + LanguageAccessor.inboxGUITitle + ChatColor.RESET;
-    
+     
 	@Override
     public void onDisable() {
 		try {
@@ -83,9 +84,9 @@ public class paperMailRecoded extends JavaPlugin {
 	
 	private void initLanguage()
 	{
-		File f = new File(getDataFolder()+File.separator+"language.yml");
-        LanguageAccessor.saveDefault(f);
-        LanguageAccessor.LoadLanguage(f); 
+		LanguageAccessor.saveDefaultLang();
+		LanguageAccessor.LoadLanguage();
+		initLangVars();
 	}
 	
 	private void loadConfig(paperMailRecoded instance)
@@ -124,8 +125,7 @@ public class paperMailRecoded extends JavaPlugin {
 		this.getServer().addRecipe(letterPaperRecipe);
     }
 
-    @SuppressWarnings("deprecation")
-	private void initializeInboxes() {
+    private void initializeInboxes() {
 		for (Player player : getServer().getOnlinePlayers()) {
 			if (player == null) {
 				continue;
@@ -159,10 +159,17 @@ public class paperMailRecoded extends JavaPlugin {
 		}
 	}
     
-    public static boolean isGoldIngot() {
-        return economy == null;
-     }
-
+   public static boolean isGoldIngot() {
+       return economy == null;
+   }
+   
+   private static void initLangVars(){
+	   //Loading and Unloading Messages
+	   LINKED_INTO_VAULT = paperMailRecoded.plugin + LanguageAccessor.vaultLinked + economy.getName() + LanguageAccessor.thruVault;
+	   //GUITitles
+	   NEW_MAIL_GUI_TITLE = ChatColor.BLACK + LanguageAccessor.newMailGUITitle + ChatColor.RESET;
+	   INBOX_GUI_TITLE = ChatColor.BLACK + LanguageAccessor.inboxGUITitle + ChatColor.RESET;
+   } 
      
    @SuppressWarnings("rawtypes")
    public Boolean setupEconomy()

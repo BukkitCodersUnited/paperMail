@@ -1,3 +1,6 @@
+LoadMessages:
+  vaultLinked: ': linked into '
+  thruVault: ', via Vault'	
 GUITitles:
   newMailGUITitle: 'PaperMail: New Mail'
   inboxGUITitle: 'PaperMail: Inbox'

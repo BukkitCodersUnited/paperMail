@@ -6,14 +6,9 @@ paperMail - Bukkit Plugin
 Forked by DrkMatr
 
 To compile the latest version from source, clone this repository.
-This plugin uses Maven to handle it's dependencies, google Maven
-and download the latest version, then run
+This plugin uses gradle to handle it's dependencies, google gradle
+and download v. 1.6 or higher then run
 
-mvn clean package
+gradle build
 
 from a command line.
-
-Additional information and help can be found at the wiki located 
-here :
-
-https://github.com/BukkitCodersUnited/paperMail/wiki
