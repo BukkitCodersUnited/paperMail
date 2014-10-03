@@ -4,19 +4,13 @@ import com.cmg.inputgui.api.InputGuiSign;
 import com.cmg.inputgui.api.event.CommandBlockEditEvent;
 import com.cmg.inputgui.api.event.ItemRenameEvent;
 import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.PacketType.Play.Client;
-import com.comphenix.protocol.PacketType.Play.Server;
 import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.ListenerOptions;
 import com.comphenix.protocol.events.ListeningWhitelist;
-import com.comphenix.protocol.events.ListeningWhitelist.Builder;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.events.PacketListener;
 import com.comphenix.protocol.injector.GamePhase;
-import com.comphenix.protocol.reflect.StructureModifier;
-import com.comphenix.protocol.utility.MinecraftVersion;
 import com.google.common.base.Charsets;
 
 import java.io.ByteArrayInputStream;
@@ -28,7 +22,6 @@ import java.io.IOException;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CommandBlock;
@@ -38,7 +31,6 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class InputGuiPacketListener

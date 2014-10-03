@@ -1,23 +1,23 @@
 package com.cmg.inputgui.plugin;
 
 import com.cmg.inputgui.api.InputGuiAPI;
+
 import java.util.HashMap;
 import java.util.Map;
-import org.bukkit.Server;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class InputGuiPlugin
   extends JavaPlugin
   implements InputGuiAPI, Listener
 {
-  private Map<String, InputGuiPlayer> players = new HashMap();
+  private Map<String, InputGuiPlayer> players = new HashMap<String, InputGuiPlayer>();
   
   public void onEnable()
   {

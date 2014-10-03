@@ -5,8 +5,8 @@ import com.cmg.inputgui.api.InputGuiBase;
 import com.cmg.inputgui.api.InputGuiSign;
 import com.cmg.inputgui.api.InputPlayer;
 import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -86,7 +86,8 @@ public class InputGuiPlayer
     openGui(gui, 17, 3);
   }
   
-  public void openGui(InputGuiBase<?> gui, int moveCheckTicks, int packetCheckTicks)
+  @SuppressWarnings("deprecation")
+public void openGui(InputGuiBase<?> gui, int moveCheckTicks, int packetCheckTicks)
   {
     setCancelled();
     this.gui = gui;
@@ -163,7 +164,8 @@ public class InputGuiPlayer
     this.checkMoveTask.runTaskLater(this.plugin, moveCheckTicks);
   }
   
-  public void setCancelled()
+  @SuppressWarnings("deprecation")
+public void setCancelled()
   {
     if (this.checkMoveTask != null)
     {
